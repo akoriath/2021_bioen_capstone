@@ -1,0 +1,147 @@
+# Alex Koriath
+# Capstone 2021
+# First Iteration: RGB
+
+from PIL import Image
+import numpy as np
+
+def color_overlap(filename1, color1, filename2, color2):
+    """Returns a percentage of overlap area out of total fluorescent
+    area for two input images with each of their color channels denoted. Can
+    return images showing total fluorescent area of each image or overlapping
+    fluorescent area.
+    """
+
+    # red boundaries
+    rrmax = 255
+    rrmin = 160
+    rgmax = 80
+    rgmin = 0
+    rbmax = 1
+    rbmin = 0
+
+    # green boundaries
+    grmax = 100
+    grmin = 35
+    ggmax = 255
+    ggmin = 120
+    gbmax = 100
+    gbmin = 0
+    
+    # blue boundaries
+    brmax = 100
+    brmin = 0
+    bgmax = 170
+    bgmin = 100
+    bbmax = 255
+    bbmin = 100
+
+    # Find fluorescent area of image one
+    if color1 == 'R':
+        im1 = Image.open(filename1) # open image
+        [width, height] = im1.size  # get size
+        pixels1 = im1.load()  # create array of image values
+        one_yn = np.zeros((height, width))  # create correct sized array
+        for l in range(0, width):
+            for h in range(0, height):
+                pixel = pixels1[l, h]   # get each pixel (RGB values)
+                if pixel[0] >= rrmin and pixel[0] <= rrmax and pixel[1] >= rgmin and pixel[1] <= rgmax and pixel[2] >= rbmin and pixel[2] <= rbmax:
+                    one_yn[h, l] = 255  # mark as fluorescent
+                else:
+                    one_yn[h, l] = 1    # mark as background
+    elif color1 == 'G':
+        im1 = Image.open(filename1)
+        [width, height] = im1.size
+        pixels1 = im1.load()
+        one_yn = np.zeros((height, width))
+        for l in range(0, width):
+            for h in range(0, height):
+                pixel = pixels1[l, h]
+                if pixel[0] >= grmin and pixel[0] <= grmax and pixel[1] >= ggmin and pixel[1] <= ggmax and pixel[2] >= gbmin and pixel[2] <= gbmax:
+                    one_yn[h, l] = 255
+                else:
+                    one_yn[h, l] = 1
+    elif color1 == 'B':
+        im1 = Image.open(filename1)
+        [width, height] = im1.size
+        pixels1 = im1.load()
+        one_yn = np.zeros((height, width))
+        for l in range(0, width):
+            for h in range(0, height):
+                pixel = pixels1[l, h]
+                if pixel[0] >= brmin and pixel[0] <= brmax and pixel[1] >= bgmin and pixel[1] <= bgmax and pixel[2] >= bbmin and pixel[2] <= bbmax:
+                    one_yn[h, l] = 255
+                else:
+                    one_yn[h, l] = 1
+
+    tot_fluoro_pixels_1 = np.count_nonzero(one_yn == 255)
+
+    # Find fluorescent area of image two
+    if color2 == 'R':
+        im2 = Image.open(filename2)
+        [width, height] = im2.size
+        pixels2 = im2.load()
+        two_yn = np.zeros((height, width))
+        for l in range(0, width):
+            for h in range(0, height):
+                pixel = pixels2[l, h]
+                if pixel[0] >= rrmin and pixel[0] <= rrmax and pixel[1] >= rgmin and pixel[1] <= rgmax and pixel[2] >= rbmin and pixel[2] <= rbmax:
+                    two_yn[h, l] = 255
+                else:
+                    two_yn[h, l] = 0
+    elif color2 == 'G':
+        im2 = Image.open(filename2)
+        [width, height] = im2.size
+        pixels2 = im2.load()
+        two_yn = np.zeros((height, width))
+        for l in range(0, width):
+            for h in range(0, height):
+                pixel = pixels2[l, h]
+                if pixel[0] >= grmin and pixel[0] <= grmax and pixel[1] >= ggmin and pixel[1] <= ggmax and pixel[2] >= gbmin and pixel[2] <= gbmax:
+                    two_yn[h, l] = 255
+                else:
+                    two_yn[h, l] = 0
+    elif color2 == 'B':
+        im2 = Image.open(filename2)
+        [width, height] = im2.size
+        pixels2 = im2.load()
+        two_yn = np.zeros((height, width))
+        for l in range(0, width):
+            for h in range(0, height):
+                pixel = pixels2[l, h]
+                if pixel[0] >= brmin and pixel[0] <= brmax and pixel[1] >= bgmin and pixel[1] <= bgmax and pixel[2] >= bbmin and pixel[2] <= bbmax:
+                    two_yn[h, l] = 255
+                else:
+                    two_yn[h, l] = 0
+
+    tot_fluoro_pixels_2 = np.count_nonzero(two_yn == 255)
+
+    # Create overlap array
+    overlap_yn = np.zeros((height, width))
+    for l in range(0, width):
+        for h in range(0, height):
+            if one_yn[h, l] == two_yn[h, l]:
+                overlap_yn[h, l] = 255  # mark as overlapping
+            else:
+                overlap_yn[h, l] = 0    # mark as background
+
+
+    # Show image of fluorescent area of image one
+    # final = Image.fromarray(one_yn)
+    # final.show()
+
+    # Show image of fluorescent area of image two
+    # final = Image.fromarray(two_yn)
+    # final.show()
+
+    # Show image of overlapping area of fluorescence
+    final = Image.fromarray(overlap_yn)
+    final.show()
+
+    # Calculate the percent of overlap in total fluorescent area
+    overlap_pixels = np.count_nonzero(overlap_yn == 255)
+    tot_fluoro_pixels = (tot_fluoro_pixels_1 + tot_fluoro_pixels_2) - overlap_pixels
+    percent_overlap = overlap_pixels/tot_fluoro_pixels
+
+    return print(percent_overlap)
+
