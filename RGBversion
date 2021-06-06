@@ -1,6 +1,6 @@
 # Alex Koriath
 # Capstone 2021
-# First Iteration: RGB
+# Second Iteration: RGB
 
 from PIL import Image
 import numpy as np
